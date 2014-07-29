@@ -1,13 +1,8 @@
 from __future__ import division
-
-
-import numpy
-
-
 """Analysing the bottom two levels of a randomly constructed 2-4 tree"""
-
-from fractions import Fraction
-
+import numpy
+import scipy.linalg
+from sympy import *
 
 def gen_all_types():
     all_types = []
@@ -24,6 +19,7 @@ def gen_all_types():
         all_types += types
     return all_types
 
+''' Pffft - from before I thought order didn't matter
 def _kill_gen_all_types():
     """Generate all possible types of height 2 nodes"""
     return gen_types(2) + gen_types(3) + gen_types(4)
@@ -38,6 +34,7 @@ def _kill_gen_types(i, ticks):
     if (ticks == 0): return [ [0]*i ]
     return [ [y+1 for y in x] for x in _gen_types(i, ticks-1)] \
          + [ [0] + x for x in _gen_types(i-1, ticks) ]
+'''
 
 def type_to_string(t):
     """Convert a type to a string."""
@@ -60,7 +57,7 @@ def conditional_expectations(types):
 
     type_strings = [ type_to_string(t) for t in types ]
     d = dict (zip(type_strings, range(len(type_strings))))
-    result = [[ Fraction(0) for i in range(len(types)) ] 
+    result = [[0 for i in range(len(types))] 
                     for j in range(len(types))]
 
     # Iterate through each node type and account for the types that it can
@@ -94,17 +91,23 @@ def conditional_expectations(types):
     for j in range(len(types)):
         result[j][j] -= 1
 
-    # The coefficients must sum to 1.
-    result.append([1]*len(types))
+    # The last row is redundant, but the coefficients must sum to 1.
+    last_row = result[-1][:]
+    for i in range(len(types)):
+        result[-1][i] = leaves(types[i])
     
     return result
 
 if __name__ == "__main__":
     types = gen_all_types();
     matrix = conditional_expectations(types)
+    
+    print "{:<15}".format(""),
+    print "".join(["{:>4}".format(type_to_string(types[r])) 
+                   for r in range(len(matrix))])
     for r in range(len(matrix)): 
         if r < len(types): print "{:<15}".format(types[r]),
         else: print "{:<15}".format(""),
-        print "".join([ "{:>3}".format(entry) for entry in matrix[r] ])
-    print numpy.linalg.solve(matrix, [0]*len(matrix) + [1])
+        print "".join([ "{:>4}".format(entry) for entry in matrix[r] ])
+    print scipy.linalg.solve(matrix, [0]*(len(matrix)-1) + [1])
 
