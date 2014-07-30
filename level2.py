@@ -129,9 +129,14 @@ if __name__ == "__main__":
     print "pawel = {}".format(["{}".format(x) for x in rat_pawel])
 
     print "number of subtrees of height 2 is {}n".format(sum(solution))
-    c = sum([solution[i]*cost(types[i]) for i in range(len(types)) ]) \
-		/sum(solution)
+
+    print "average number of leaves per subtree is {}".format(
+      sum([solution[i]*leaves(types[i]) for i in range(len(types))])
+          / sum(solution))
+
+    c = sum([solution[i]*leaves(types[i])*cost(types[i]) for i in range(len(types)) ])
     print "cost of last two levels is {}".format(c)
+
 
     print "expected cost is at least log(n) + {}".format(c + math.log(sum(solution),2))
 
