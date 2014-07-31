@@ -153,6 +153,16 @@ def print_stats(soln, types):
     print "number of subtrees of height 2 is {}n".format(alpha)
     print "average number of leaves per subtree is {}".format(1/alpha)
 
+    print "distribution of root-node degrees:"
+    for s in range(2,5):
+        coll = [ i for i in range(len(types)) if len(types[i]) == s]
+        print "  {} : {}".format(s, sum([soln[i] for i in coll])/alpha)
+        
+    print "distribution of subtree sizes:"
+    for s in range(4, 17):
+        coll = [ i for i in range(len(types)) if leaves(types[i]) == s]
+        print "  {} : {}".format(s, sum([soln[i] for i in coll])/alpha)
+
     c = sum([soln[i]*leaves(types[i])*cost(types[i]) 
                  for i in range(len(types)) ])
     print "cost of last two levels is {}".format(c)
@@ -166,14 +176,14 @@ if __name__ == "__main__":
     rhs = [0]*(len(types)-1) + [1]
 
     # First solve numerically
-    print "Finding floating-point solution...",
+    print "\nFinding floating-point solution...",
     sys.stdout.flush()
     num_soln = scipy.linalg.solve(matrix, rhs)
     print "done."
     print_stats(num_soln, types)
 
     # Now solve exactly    
-    print "Finding exact solution...",
+    print "\nFinding exact solution...",
     sys.stdout.flush()
     rat_soln = sympy.Matrix(matrix).LUsolve(sympy.Matrix(rhs))
     print "done."
