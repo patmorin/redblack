@@ -44,7 +44,7 @@ def size(n):
 
 if __name__ == "__main__":
     root = Node([None, None])
-    for i in range(200000):
+    for i in range(250000):
         r = add(root)
         if r is not root:
             root = Node([root, r])
