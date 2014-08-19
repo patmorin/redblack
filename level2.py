@@ -156,7 +156,7 @@ def print_stats(soln, types):
     print "distribution of root-node degrees:"
     for s in range(2,5):
         coll = [ i for i in range(len(types)) if len(types[i]) == s]
-        print "  {} : {}".format(s, sum([soln[i] for i in coll])/alpha)
+        print "  {:>2} : {}".format(s, sum([soln[i] for i in coll])/alpha)
 
     print "two-level distribution of degrees:"
     for s in range(2,5):
@@ -166,15 +166,12 @@ def print_stats(soln, types):
             c2 = sum([soln[i]*types[i].count(t) for i in coll])/pi
             print "{}-node has {} {}-node children on average".format(
                     s, c2, t),
-            print "ratio = {}".format(c2/s)
-    
-
-
-        
+            print "|ratio = {}".format(c2/s)
+            
     print "distribution of subtree sizes (#leaves):"
     for s in range(4, 17):
         coll = [ i for i in range(len(types)) if leaves(types[i]) == s]
-        print "  {} : {}".format(s, sum([soln[i] for i in coll])/alpha)
+        print "  {:>2} : {}".format(s, sum([soln[i] for i in coll])/alpha)
 
     c = sum([soln[i]*leaves(types[i])*cost(types[i]) 
                  for i in range(len(types)) ])
