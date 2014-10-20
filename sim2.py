@@ -28,11 +28,11 @@ class Node(object):
         return ",".join([str(size(x)) for x in self.children])
 
 
-
 def cost(n):
     if n is None:
         return 0
     return n.cost
+
 
 def split(n):
     """Split the 5-node n into a 2-node and 3-node.
@@ -44,6 +44,7 @@ def split(n):
     n.size = sum([size(x) for x in n.children])
     n.fix_cost()
     return Node(a[2:])
+
 
 def add(n):
     """Add a new node to the subtree rooted at n.
@@ -75,6 +76,7 @@ def add(n):
         return split(n)
     return n
 
+
 def size(n):
     """Return the size of the subtree rooted at n"""
     if n is None:
@@ -90,6 +92,7 @@ def size_check(n):
         s = sum([size_check(u) for u in n.children])
     assert(s == size(n))
     return s 
+
       
 def cost_check(n):
     """Do a recursive check of all cost values stored in n's subtree"""
@@ -106,7 +109,9 @@ def cost_check(n):
     assert(c == cost(n))
     return c
 
+
 def lsb(i):
+    """Return the index of the least significant bit of i"""
     if i == 0: return None
     j = 0
     while i & (1 << j) == 0:
@@ -114,31 +119,73 @@ def lsb(i):
     return j
 
 def power_of_two(i):
+    """Return True if and only if i is a power of 2"""
     if i == 0: return False
     return 1 << lsb(i) == i
 
 
+def node_histogram(n, h, hist):
+    if n == None:
+        return
+    hist[h][len(n.children)-2] += 1
+    for u in n.children:
+        node_histogram(u, h+1, hist)
+
+def enum_level(n, d, level):
+    if d == level:
+        yield n
+    elif d < level:
+        for u in n.children:
+            for w in enum_level(u, d+1, level): 
+                yield w
+
 if __name__ == "__main__":
+
     # Start with a single binary root node.
+    height = 1
     root = Node([None, None])
 
     # Add n elements
-    for i in range(1000000):
+    for i in range(2000000):
         n = size(root)
         c = cost(root)
-        print "{:10} {:10} {:10} {:10} {:10}\r" \
-                .format(c, n, c/n, (c/n)/log(n,2), (c/n)-log(n,2))
+        #print "{:10} {:10} {:10} {:10} {:10}\r" \
+        #        .format(c, n, c/n, (c/n)/log(n,2), (c/n)-log(n,2))
         r = add(root)
 
         # Check if root was split.
         if r is not root:
+            height += 1
             root = Node([root, r])
 
         # Do spot checking to make sure calculations are correct.
         if power_of_two(i):
             size_check(root)
             cost_check(root)
-            #print "{:>7.5} {:>7.5}".format(ap, bp),
     print
+
+    print "n = {}, height = {}".format(size(root), height)
+
+    print "Distribution of nodes at various levels"
+    histogram = [[0, 0, 0] for h in range(height)]
+    node_histogram(root, 0, histogram)
+    for h in range(height):
+        nh = sum(histogram[h])
+        print "h:{:>3} {} ({} nodes)".format(h, [x/nh for x in histogram[h]], nh)
+
+    # print the subtree sizes at one particular level
+    print "Subtree sizes:"
+    level = [n for n in enum_level(root, 0, height-7)]
+    threes = [n for n in enum_level(root, 0, height-8) if len(n.children)==3]
+    lo3 = [n.children[0] for n in threes]
+    print "Average size of node is {}".format(
+            sum([size(n) for n in level])/len(level) )
+    print "Average size of first-child-of-3-node is {}".format(
+            sum([size(n) for n in lo3])/len(lo3) )
+    oo3 = [n.children[1] for n in threes] + [n.children[2] for n in threes]
+    print "Average size of other-child-of-3-node is {}".format(
+            sum([size(n) for n in oo3])/len(oo3) )
+
+
 
 
